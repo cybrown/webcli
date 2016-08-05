@@ -1,20 +1,50 @@
 var path = require('path');
+var packageInfo = require('./package.json');
 
 var del = require('del');
+var commander = require('commander');
 var webpack = require('webpack');
 var WebpackDevServer = require('webpack-dev-server');
 
-let webpackConfig = null;
+var defaults = require('./defaults');
 
-if (process.argv[2] === 'dist') {
-    webpackConfig = require('./webpack.dist.config');
-} else {
-    webpackConfig = require('./webpack.dev.config');
+commander
+    .version(packageInfo.version);
+
+commander
+    .command('run')
+    .description('Run development server')
+    .option('-p, --port <port>', 'Port for development server')
+    .action(commandRun);
+
+commander
+    .command('dist')
+    .description('Create production files')
+    .action(commandDist);
+
+commander
+    .command('clean')
+    .description('Remove build files')
+    .action(commandClean);
+
+commander.parse(process.argv);
+
+if (!process.argv.slice(2).length) {
+    commander.outputHelp();
 }
 
-var compiler = webpack(webpackConfig);
-if (process.argv[2] === 'dist') {
-    del(path.resolve(process.cwd(), 'dist')).then(function () {
+function commandRun(env) {
+    var port = env.port || defaults.port;
+    let webpackConfig = require('./webpack.dev.config');
+    var compiler = webpack(webpackConfig);
+    var server = new WebpackDevServer(compiler);
+    server.listen(port);
+}
+
+function commandDist() {
+    let webpackConfig = require('./webpack.dist.config');
+    var compiler = webpack(webpackConfig);
+    cleanDist().then(function () {
         compiler.run(function (err, stats) {
             if (err) throw err;
         });
@@ -22,7 +52,12 @@ if (process.argv[2] === 'dist') {
         console.error('Error');
         console.error(err);
     });
-} else {
-    var server = new WebpackDevServer(compiler);
-    server.listen(3000);
+}
+
+function commandClean() {
+    cleanDist();
+}
+
+function cleanDist() {
+    return del(path.resolve(process.cwd(), 'dist'));
 }
