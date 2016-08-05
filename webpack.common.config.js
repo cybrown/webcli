@@ -3,6 +3,8 @@ var path = require('path');
 
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
+var precss = require('precss');
+var autoprefixer = require('autoprefixer');
 
 var webpackHtmlOptions = {};
 
@@ -34,8 +36,8 @@ module.exports = {
             { test: /\.js$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-es2015')] } },
             { test: /\.jsx$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-react'), require.resolve('babel-preset-es2015')] } },
             { test: /\.tsx?$/, loader: 'ts' },
-            { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css') },
-            { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less') },
+            { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css!postcss') },
+            { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!postcss!less') },
             { test: /\.woff2?(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
             { test: /\.ttf(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/octet-stream' },
             { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/, loader: 'file' },
@@ -50,5 +52,8 @@ module.exports = {
     ],
     resolveLoader: {
         root: [path.resolve(__dirname, 'node_modules')]
+    },
+    postcss: function () {
+        return [precss, autoprefixer];
     }
 };
