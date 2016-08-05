@@ -21,12 +21,9 @@ if (!mainScriptFile) {
 }
 
 module.exports = {
-    name: 'client',
-    devtool: 'source-map',
     entry: mainScriptFile,
     output: {
-        path: process.cwd() + '/dist/',
-        filename: 'bundle.js'
+        filename: 'bundle.[hash].js'
     },
     resolve: {
         extensions: ['', '.js', '.jsx', '.ts', '.tsx']
@@ -46,7 +43,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new ExtractTextPlugin('style.css', {
+        new ExtractTextPlugin('style.[hash].css', {
             allChunks: true
         }),
         new HtmlWebpackPlugin(webpackHtmlOptions)
