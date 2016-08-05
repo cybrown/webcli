@@ -19,12 +19,14 @@ module.exports = {
         filename: 'bundle.js'
     },
     resolve: {
-        extensions: ['', '.webpack.js', '.web.js', '.js', '.ts']
+        extensions: ['', '.js', '.jsx', '.ts', '.tsx']
     },
     module: {
         loaders: [
             { test: /\.html$/, loader: 'html' },
-            { test: /\.ts$/, loader: 'ts' },
+            { test: /\.js$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-es2015')] } },
+            { test: /\.jsx$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-react'), require.resolve('babel-preset-es2015')] } },
+            { test: /\.tsx?$/, loader: 'ts' },
             { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css') },
             { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!less') },
             { test: /\.(woff|woff2)(\?v=\d+\.\d+\.\d+)?$/, loader: 'url?limit=10000&mimetype=application/font-woff' },
