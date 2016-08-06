@@ -56,6 +56,12 @@ commander
     .action(commandPackage);
 
 commander
+    .command('test')
+    .description('Run unit tests')
+    .option('-e --env <environment>', 'Specify environment, dev or prod', /^(dev|prod)$/i, 'dev')
+    .action(commandTest);
+
+commander
     .command('clean')
     .description('Remove build files')
     .action(commandClean);
@@ -115,6 +121,23 @@ function commandPackage(params) {
         if (err) throw err;
         createArchiveFromMemoryFs(params.type, fs);
     });
+}
+
+function commandTest(params) {
+    var Server = require('karma').Server;
+    var karmaOptions = null;
+    require(path.resolve(__dirname, 'karma.conf.js'))({
+        set: function (opts) {
+            karmaOptions = opts;
+        }
+    });
+    karmaOptions.webpack = getWebpackConfiguration(params.env);
+    delete karmaOptions.webpack.entry;
+    var server = new Server(karmaOptions, function (exitCode) {
+        console.log('Karma has exited with ' + exitCode);
+        process.exit(exitCode);
+    });
+    server.start();
 }
 
 function commandClean() {
