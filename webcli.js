@@ -24,8 +24,8 @@ commander
 commander
     .command('build')
     .alias('b')
-    .option('-a --archive [type]', 'Create an archive (zip or tgz)', /^(zip|tgz)$/i, 'zip')
     .description('Create production files')
+    .option('-a --archive [type]', 'Create an archive (zip or tgz), defaults to zip', /^(zip|tgz)$/i, 'zip')
     .action(commandDist);
 
 commander
