@@ -9,6 +9,9 @@ var webpack = require('webpack');
 var WebpackDevServer = require('webpack-dev-server');
 var mergeWebpackConfig = require('webpack-config-merger');
 var archiver = require('archiver');
+var MemoryFileSystem = require("memory-fs");
+
+var memoryFsUtil = require('./memory-fs-util');
 
 var defaults = require('./defaults');
 
@@ -40,8 +43,14 @@ commander
     .command('build')
     .alias('b')
     .description('Create production files')
-    .option('-a --archive [type]', 'Create an archive (zip or tgz), defaults to zip', /^(zip|tgz)$/i, 'zip')
     .action(commandDist);
+
+commander
+    .command('package')
+    .alias('p')
+    .description('Create production package')
+    .option('-t --type [type]', 'Create an archive (zip or tgz), defaults to zip', /^(zip|tgz)$/i, 'zip')
+    .action(commandPackage);
 
 commander
     .command('clean')
@@ -76,9 +85,23 @@ function commandDist(env) {
     cleanDist().then(function () {
         compiler.run(function (err, stats) {
             if (err) throw err;
-            if (env.archive) {
-                createArchive(env.archive);
-            }
+        });
+    }).catch(function (err) {
+        console.error('Error');
+        console.error(err);
+    });
+}
+
+function commandPackage(env) {
+    let webpackConfig = getWebpackConfiguration('./webpack.dist.config');
+    webpackConfig.output.path = '/';
+    var fs = new MemoryFileSystem();
+    var compiler = webpack(webpackConfig);
+    compiler.outputFileSystem = fs;
+    cleanDist().then(function () {
+        compiler.run(function (err, stats) {
+            if (err) throw err;
+            createArchiveFromMemoryFs(env.type, fs);
         });
     }).catch(function (err) {
         console.error('Error');
@@ -90,7 +113,7 @@ function commandClean() {
     cleanDist();
 }
 
-function createArchive(type) {
+function createArchiveFromMemoryFs(type, memoryFs) {
     var archiverOptions = {};
     var archiveType = 'zip';
     var archiveExtension = 'zip';
@@ -103,7 +126,14 @@ function createArchive(type) {
         archiveType = 'zip';
     }
     var archive = archiver.create(archiveType, archiverOptions);
-    archive.directory('./dist', '/');
+    memoryFsUtil
+        .listFilesRecursive(memoryFs, '/')
+        .filter(function (absolutePath) {
+            return memoryFs.statSync(absolutePath).isFile();
+        })
+        .forEach(function (absolutePath) {
+            archive.append(memoryFs.readFileSync(absolutePath), { name: absolutePath, stat: memoryFs.statSync(absolutePath) });
+        });
     archive.finalize();
     var output = fs.createWriteStream(process.cwd() + '/' + currentPackageInfo.name + '-' + currentPackageInfo.version + '.' + archiveExtension);
     archive.pipe(output);
