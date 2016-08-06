@@ -7,9 +7,24 @@ var del = require('del');
 var commander = require('commander');
 var webpack = require('webpack');
 var WebpackDevServer = require('webpack-dev-server');
+var mergeWebpackConfig = require('webpack-config-merger');
 var archiver = require('archiver');
 
 var defaults = require('./defaults');
+
+(function readCustomConfiguration() {
+    var customConfigurationCallbacks = null;
+    return function () {
+        if (!customConfigurationCallbacks) {
+            var pathToCustomConfigurationCallbacks = path.resolve(process.cwd(), 'webcli.config.js');
+            if (fs.existsSync(pathToCustomConfigurationCallbacks)) {
+                customConfigurationCallbacks = require(pathToCustomConfigurationCallbacks);
+            }
+            customConfigurationCallbacks = {};
+        }
+        return customConfigurationCallbacks;
+    }
+})();
 
 commander
     .version(packageInfo.version);
@@ -39,16 +54,24 @@ if (!process.argv.slice(2).length) {
     commander.outputHelp();
 }
 
+function getWebpackConfiguration(path) {
+    var webpackConfiguration = require(path);
+    if (typeof readCustomConfiguration().configureWebpack === 'function') {
+        webpackConfiguration = readCustomConfiguration().configureWebpack(webpackConfiguration, webpack, mergeWebpackConfig) || webpackConfiguration;
+    }
+    return webpackConfiguration;
+}
+
 function commandRun(env) {
     var port = env.port || defaults.port;
-    let webpackConfig = require('./webpack.dev.config');
+    let webpackConfig = getWebpackConfiguration('./webpack.dev.config');
     var compiler = webpack(webpackConfig);
     var server = new WebpackDevServer(compiler);
     server.listen(port);
 }
 
 function commandDist(env) {
-    let webpackConfig = require('./webpack.dist.config');
+    let webpackConfig = getWebpackConfiguration('./webpack.dist.config');
     var compiler = webpack(webpackConfig);
     cleanDist().then(function () {
         compiler.run(function (err, stats) {
