@@ -12,7 +12,7 @@ var archiver = require('archiver');
 
 var defaults = require('./defaults');
 
-(function readCustomConfiguration() {
+var readCustomConfiguration = (function () {
     var customConfigurationCallbacks = null;
     return function () {
         if (!customConfigurationCallbacks) {
