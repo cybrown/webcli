@@ -37,12 +37,14 @@ commander
     .alias('s')
     .description('Run development server')
     .option('-p, --port <port>', 'Port for development server')
+    .option('-e --env <environment>', 'Specify environment, dev or prod', /^(dev|prod)$/i, 'dev')
     .action(commandServer);
 
 commander
     .command('build')
     .alias('b')
     .description('Create production files')
+    .option('-e --env <environment>', 'Specify environment, dev or prod', /^(dev|prod)$/i, 'prod')
     .action(commandBuild);
 
 commander
@@ -50,6 +52,7 @@ commander
     .alias('p')
     .description('Create production package')
     .option('-t --type [type]', 'Create an archive (zip or tgz), defaults to zip', /^(zip|tgz)$/i, 'zip')
+    .option('-e --env <environment>', 'Specify environment, dev or prod', /^(dev|prod)$/i, 'prod')
     .action(commandPackage);
 
 commander
@@ -63,8 +66,8 @@ if (!process.argv.slice(2).length) {
     commander.outputHelp();
 }
 
-function getWebpackConfiguration(path) {
-    var webpackConfiguration = require(path);
+function getWebpackConfiguration(env) {
+    var webpackConfiguration = require('./webpack.' + env + '.config');
     if (typeof readCustomConfiguration().configureWebpack === 'function') {
         webpackConfiguration = readCustomConfiguration().configureWebpack(webpackConfiguration, webpack, mergeWebpackConfig) || webpackConfiguration;
     }
@@ -73,17 +76,20 @@ function getWebpackConfiguration(path) {
 
 function commandServer(params) {
     var port = params.port || defaults.port;
-    let webpackConfig = getWebpackConfiguration('./webpack.dev.config');
+    var env = params.env;
+    let webpackConfig = getWebpackConfiguration(env);
     var compiler = webpack(webpackConfig);
     var server = new WebpackDevServer(compiler);
     server.listen(port);
 }
 
-function commandBuild() {
-    let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
-    webpackConfig.output = {
-        path: process.cwd() + '/dist/'
-    };
+function commandBuild(params) {
+    var env = params.env;
+    let webpackConfig = mergeWebpackConfig(getWebpackConfiguration(env), {
+        output: {
+            path: process.cwd() + '/dist/'
+        }
+    });
     var compiler = webpack(webpackConfig);
     cleanDist().then(function () {
         compiler.run(function (err, stats) {
@@ -96,8 +102,12 @@ function commandBuild() {
 }
 
 function commandPackage(params) {
-    let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
-    webpackConfig.output.path = '/';
+    var env = params.env;
+    let webpackConfig = mergeWebpackConfig(getWebpackConfiguration(env), {
+        output: {
+            path: '/'
+        }
+    });
     var fs = new MemoryFileSystem();
     var compiler = webpack(webpackConfig);
     compiler.outputFileSystem = fs;
