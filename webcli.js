@@ -1,10 +1,13 @@
 var path = require('path');
+var fs = require('fs');
 var packageInfo = require('./package.json');
+var currentPackageInfo = require(path.resolve(process.cwd(), 'package.json'));
 
 var del = require('del');
 var commander = require('commander');
 var webpack = require('webpack');
 var WebpackDevServer = require('webpack-dev-server');
+var archiver = require('archiver');
 
 var defaults = require('./defaults');
 
@@ -21,6 +24,7 @@ commander
 commander
     .command('build')
     .alias('b')
+    .option('-a --archive [type]', 'Create an archive', /^(zip|tgz)$/i, 'zip')
     .description('Create production files')
     .action(commandDist);
 
@@ -43,12 +47,15 @@ function commandRun(env) {
     server.listen(port);
 }
 
-function commandDist() {
+function commandDist(env) {
     let webpackConfig = require('./webpack.dist.config');
     var compiler = webpack(webpackConfig);
     cleanDist().then(function () {
         compiler.run(function (err, stats) {
             if (err) throw err;
+            if (env.archive) {
+                createArchive(env.archive);
+            }
         });
     }).catch(function (err) {
         console.error('Error');
@@ -58,6 +65,25 @@ function commandDist() {
 
 function commandClean() {
     cleanDist();
+}
+
+function createArchive(type) {
+    var archiverOptions = {};
+    var archiveType = 'zip';
+    var archiveExtension = 'zip';
+    if (type === 'tgz') {
+        archiveType = 'tar';
+        archiveExtension = 'tar.gz';
+        archiverOptions.gzip = true;
+        archiverOptions.gzipOptions = { level: 1 };
+    } else {
+        archiveType = 'zip';
+    }
+    var archive = archiver.create(archiveType, archiverOptions);
+    archive.directory('./dist', '/');
+    archive.finalize();
+    var output = fs.createWriteStream(process.cwd() + '/' + currentPackageInfo.name + '-' + currentPackageInfo.version + '.' + archiveExtension);
+    archive.pipe(output);
 }
 
 function cleanDist() {
