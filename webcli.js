@@ -71,15 +71,15 @@ function getWebpackConfiguration(path) {
     return webpackConfiguration;
 }
 
-function commandServer(env) {
-    var port = env.port || defaults.port;
+function commandServer(params) {
+    var port = params.port || defaults.port;
     let webpackConfig = getWebpackConfiguration('./webpack.dev.config');
     var compiler = webpack(webpackConfig);
     var server = new WebpackDevServer(compiler);
     server.listen(port);
 }
 
-function commandBuild(env) {
+function commandBuild() {
     let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
     webpackConfig.output = {
         path: process.cwd() + '/dist/'
@@ -95,7 +95,7 @@ function commandBuild(env) {
     });
 }
 
-function commandPackage(env) {
+function commandPackage(params) {
     let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
     webpackConfig.output.path = '/';
     var fs = new MemoryFileSystem();
@@ -103,7 +103,7 @@ function commandPackage(env) {
     compiler.outputFileSystem = fs;
     compiler.run(function (err, stats) {
         if (err) throw err;
-        createArchiveFromMemoryFs(env.type, fs);
+        createArchiveFromMemoryFs(params.type, fs);
     });
 }
 
