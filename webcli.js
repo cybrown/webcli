@@ -37,13 +37,13 @@ commander
     .alias('s')
     .description('Run development server')
     .option('-p, --port <port>', 'Port for development server')
-    .action(commandRun);
+    .action(commandServer);
 
 commander
     .command('build')
     .alias('b')
     .description('Create production files')
-    .action(commandDist);
+    .action(commandBuild);
 
 commander
     .command('package')
@@ -71,7 +71,7 @@ function getWebpackConfiguration(path) {
     return webpackConfiguration;
 }
 
-function commandRun(env) {
+function commandServer(env) {
     var port = env.port || defaults.port;
     let webpackConfig = getWebpackConfiguration('./webpack.dev.config');
     var compiler = webpack(webpackConfig);
@@ -79,8 +79,11 @@ function commandRun(env) {
     server.listen(port);
 }
 
-function commandDist(env) {
-    let webpackConfig = getWebpackConfiguration('./webpack.dist.config');
+function commandBuild(env) {
+    let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
+    webpackConfig.output = {
+        path: process.cwd() + '/dist/'
+    };
     var compiler = webpack(webpackConfig);
     cleanDist().then(function () {
         compiler.run(function (err, stats) {
@@ -93,19 +96,14 @@ function commandDist(env) {
 }
 
 function commandPackage(env) {
-    let webpackConfig = getWebpackConfiguration('./webpack.dist.config');
+    let webpackConfig = getWebpackConfiguration('./webpack.prod.config');
     webpackConfig.output.path = '/';
     var fs = new MemoryFileSystem();
     var compiler = webpack(webpackConfig);
     compiler.outputFileSystem = fs;
-    cleanDist().then(function () {
-        compiler.run(function (err, stats) {
-            if (err) throw err;
-            createArchiveFromMemoryFs(env.type, fs);
-        });
-    }).catch(function (err) {
-        console.error('Error');
-        console.error(err);
+    compiler.run(function (err, stats) {
+        if (err) throw err;
+        createArchiveFromMemoryFs(env.type, fs);
     });
 }
 

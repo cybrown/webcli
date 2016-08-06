@@ -2,9 +2,6 @@ var webpack = require('webpack');
 var mergeWebpackConfig = require('webpack-config-merger');
 
 module.exports = mergeWebpackConfig(require('./webpack.common.config'), {
-    output: {
-        path: process.cwd() + '/dist/'
-    },
     plugins: [
         new webpack.optimize.UglifyJsPlugin(),
         new webpack.DefinePlugin({
