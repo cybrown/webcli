@@ -13,12 +13,14 @@ commander
 
 commander
     .command('server')
+    .alias('s')
     .description('Run development server')
     .option('-p, --port <port>', 'Port for development server')
     .action(commandRun);
 
 commander
     .command('build')
+    .alias('b')
     .description('Create production files')
     .action(commandDist);
 
