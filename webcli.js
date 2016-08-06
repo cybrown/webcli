@@ -12,13 +12,13 @@ commander
     .version(packageInfo.version);
 
 commander
-    .command('run')
+    .command('server')
     .description('Run development server')
     .option('-p, --port <port>', 'Port for development server')
     .action(commandRun);
 
 commander
-    .command('dist')
+    .command('build')
     .description('Create production files')
     .action(commandDist);
 
