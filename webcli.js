@@ -40,7 +40,6 @@ commander
     .command('test')
     .alias('t')
     .description('Run unit tests')
-    .option('-e --env <environment>', 'Specify environment, dev or prod', /^(dev|prod)$/i, 'dev')
     .action(commandWrapper(require('./lib/commands/test')));
 
 commander
