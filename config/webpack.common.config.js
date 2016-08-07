@@ -33,8 +33,8 @@ module.exports = {
     module: {
         loaders: [
             { test: /\.html$/, loader: 'html' },
-            { test: /\.js$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-es2016')] } },
-            { test: /\.jsx$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-react'), require.resolve('babel-preset-es2016')] } },
+            { test: /\.js$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-es2015'), require.resolve('babel-preset-es2016')] } },
+            { test: /\.jsx$/, exclude: /node_modules/, loader: 'babel', query: { presets: [require.resolve('babel-preset-react'), require.resolve('babel-preset-es2015'), require.resolve('babel-preset-es2016')] } },
             { test: /\.tsx?$/, loader: 'ts' },
             { test: /\.css$/, loader: ExtractTextPlugin.extract('style', 'css!postcss') },
             { test: /\.less$/, loader: ExtractTextPlugin.extract('style', 'css!postcss!less') },
