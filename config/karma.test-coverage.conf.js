@@ -12,9 +12,8 @@ module.exports = function (config) {
   baseConfig.coverageReporter = {
     dir: 'coverage/',
     reporters: [
-      { type: 'text-summary' },
-      { type: 'json' },
-      { type: 'html' }
+      { type: 'cobertura' },
+      { type: 'lcov' }
     ]
   };
   config.set(baseConfig);
