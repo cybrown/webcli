@@ -34,17 +34,17 @@ module.exports = function (config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      '**/*.test.js': ['coverage', 'webpack', 'sourcemap'],
-      '**/*.test.ts': ['coverage', 'webpack', 'sourcemap'],
-      '**/*.test.jsx': ['coverage', 'webpack', 'sourcemap'],
-      '**/*.test.tsx': ['coverage', 'webpack', 'sourcemap']
+      '**/*.test.js': ['webpack', 'sourcemap'],
+      '**/*.test.ts': ['webpack', 'sourcemap'],
+      '**/*.test.jsx': ['webpack', 'sourcemap'],
+      '**/*.test.tsx': ['webpack', 'sourcemap']
     },
 
 
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress'],
 
 
     // web server port
@@ -75,15 +75,6 @@ module.exports = function (config) {
 
     // Concurrency level
     // how many browser should be started simultaneous
-    concurrency: Infinity,
-
-    coverageReporter: {
-      dir: 'coverage/',
-      reporters: [
-        { type: 'text-summary' },
-        { type: 'json' },
-        { type: 'html' }
-      ]
-    }
+    concurrency: Infinity
   })
 }

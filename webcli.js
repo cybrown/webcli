@@ -40,6 +40,7 @@ commander
     .command('test')
     .alias('t')
     .description('Run unit tests')
+    .option('-c --coverage', 'Enable coverage')
     .action(commandWrapper(require('./lib/commands/test')));
 
 commander
