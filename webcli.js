@@ -41,6 +41,7 @@ commander
     .alias('t')
     .description('Run unit tests')
     .option('-c --coverage', 'Enable coverage')
+    .option('-r --test-report', 'Output a test result report')
     .action(commandWrapper(require('./lib/commands/test')));
 
 commander
