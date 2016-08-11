@@ -6,7 +6,7 @@ var startWebpackServer = require('./helpers').startWebpackServer;
 var stopWebpackServer = require('./helpers').stopWebpackServer;
 
 
-describe ('server', function () {
+describe ('server with dev files', function () {
 
     var originalCwd = process.cwd();
 
@@ -15,7 +15,6 @@ describe ('server', function () {
     });
 
     describe ('tests on project1', function () {
-
 
         before(startWebpackServer('project1'));
 

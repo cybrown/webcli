@@ -4,11 +4,11 @@ var spawn = require('child_process').spawn;
 var Promise = require('es6-promise-polyfill').Promise;
 var path = require('path');
 
-function assertResource(path) {
+function assertResource(path, statusCode) {
     return new Promise(function (resolve, reject) {
         request('http://localhost:3000' + path, function (err, response, body) {
             expect(err).to.be.null;
-            expect(response.statusCode).to.equal(200);
+            expect(response.statusCode).to.equal(statusCode || 200);
             resolve(body);
         });
     });
@@ -26,14 +26,24 @@ function assertBundleJsBody(body) {
 }
 
 function assertStyleCssBody(body) {
-    expect(body).match(/body h1/);
+    expect(body).match(/body h1 {/);
     expect(body).match(/background-color: red;/);
     expect(body).match(/\/\*# sourceMappingURL=style\.[a-f0-9]{20}\.css\.map\*\//);
 }
 
+function assertBundleJsBodyMinified(body) {
+    expect(body).match(/console\.log\('ok'\)/);
+}
+
+function assertStyleCssBodyMinified(body) {
+    expect(body).match(/body h1{/);
+    expect(body).match(/background-color:red;/);
+}
+
 var childWebpackServerProcess = null;
 
-function startWebpackServer(projectName) {
+function startWebpackServer(projectName, args) {
+    args = args || [];
     var packageJson = require(path.resolve(process.cwd(), 'package.json'));
     var originalCwd = process.cwd();
     var binPath = path.resolve(originalCwd, packageJson.bin);
@@ -43,7 +53,7 @@ function startWebpackServer(projectName) {
                 throw new Error('Webpack process is already running');
             }
             process.chdir('test-samples/' + projectName);
-            childWebpackServerProcess = spawn('node', [binPath, 'server']);
+            childWebpackServerProcess = spawn('node', [binPath, 'server'].concat(args));
             childWebpackServerProcess.stdout.on('data', function (data) {
                 if (/webpack: bundle is now VALID\./.test(data.toString('utf-8'))) {
                     resolve();
@@ -59,6 +69,7 @@ function stopWebpackServer() {
             childWebpackServerProcess.kill();
             childWebpackServerProcess.on('close', resolve);
             childWebpackServerProcess.on('error', reject);
+            childWebpackServerProcess = null;
         }
     });
 }
