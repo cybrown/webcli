@@ -20,27 +20,33 @@ describe ('server with dev files', function () {
 
         after(stopWebpackServer);
 
+        var hash = null;
+
         it ('should serve index.html', function () {
             return assertResource('/')
+                .then(function (body) {
+                    hash = body.match(/bundle\.([a-f0-9]{20})\.js/)[1];
+                    return body;
+                })
                 .then(assertIndexHtmlBody);
         });
 
         it ('should serve bundle.js', function () {
-            return assertResource('/bundle.641e2d63cf1935eb4a72.js')
+            return assertResource('/bundle.' + hash + '.js')
                 .then(assertBundleJsBody);
         });
 
         it ('should serve style.css', function () {
-            return assertResource('/style.641e2d63cf1935eb4a72.css')
+            return assertResource('/style.' + hash + '.css')
                 .then(assertStyleCssBody);
         });
 
         it ('should serve bundle.js.map', function () {
-            return assertResource('/bundle.641e2d63cf1935eb4a72.js.map');
+            return assertResource('/bundle.' + hash + '.js.map');
         });
 
         it ('should serve style.css.map', function () {
-            return assertResource('/style.641e2d63cf1935eb4a72.css.map');
+            return assertResource('/style.' + hash + '.css.map');
         });
     });
 });
