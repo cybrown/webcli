@@ -1,6 +1,6 @@
 var mergeWebpackConfig = require('webpack-config-merger');
 
-module.exports = mergeWebpackConfig(require('./webpack.common.config'), {
+module.exports = mergeWebpackConfig(require('./webpack.dev.config'), {
     devtool: 'inline-source-map',
     module: {
         preLoaders: [{
