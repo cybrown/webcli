@@ -1,4 +1,5 @@
 # webcli
+[![Build Status](https://travis-ci.org/cybrown/webcli.svg?branch=master)](https://travis-ci.org/cybrown/webcli)
 
 ## Installation
 
