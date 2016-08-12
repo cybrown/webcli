@@ -52,7 +52,7 @@ function startWebpackServer(projectName, args) {
             if (childWebpackServerProcess) {
                 throw new Error('Webpack process is already running');
             }
-            process.chdir('test-samples/' + projectName);
+            process.chdir(path.join('test-samples', projectName));
             childWebpackServerProcess = spawn('node', [binPath, 'server'].concat(args));
             childWebpackServerProcess.stdout.on('data', function (data) {
                 if (/webpack: bundle is now VALID\./.test(data.toString('utf-8'))) {
