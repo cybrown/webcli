@@ -33,12 +33,12 @@ function assertStyleCssBody(body) {
 }
 
 function assertBundleJsBodyMinified(body) {
-    expect(body).match(/console\.log\('ok'\)/);
+    expect(body).match(/console\.log\("ok"\)/);
 }
 
 function assertStyleCssBodyMinified(body) {
     expect(body).match(/body h1{/);
-    expect(body).match(/background-color:red;/);
+    expect(body).match(/background-color:red/);
 }
 
 var childWebpackServerProcess = null;
@@ -94,6 +94,25 @@ function runBuild(projectName, args) {
     };
 }
 
+function runPackage(projectName, args) {
+    args = args || [];
+    var packageJson = require(path.resolve(process.cwd(), 'package.json'));
+    var originalCwd = process.cwd();
+    var binPath = path.resolve(originalCwd, packageJson.bin);
+    return function () {
+        return new Promise(function (resolve, reject) {
+            process.chdir('test-samples/' + projectName);
+            var childProcess = spawn('node', [binPath, 'package'].concat(args));
+            childProcess.on('exit', function () {
+                resolve();
+            });
+            childProcess.on('error', function (err) {
+                reject(err);
+            });
+        });
+    };
+}
+
 function assertFile(filePath) {
     return new Promise(function (resolve, reject) {
         fs.readFile(filePath, function (err, data) {
@@ -121,5 +140,8 @@ module.exports = {
     stopServer: stopServer,
     runBuild: runBuild,
     assertFile: assertFile,
-    assertFileNonExistant: assertFileNonExistant
+    assertFileNonExistant: assertFileNonExistant,
+    runPackage: runPackage,
+    assertBundleJsBodyMinified: assertBundleJsBodyMinified,
+    assertStyleCssBodyMinified: assertStyleCssBodyMinified
 };

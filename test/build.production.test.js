@@ -20,7 +20,7 @@ describe ('build with production files', function () {
         before(runBuild('project1', ['-e', 'prod']));
 
         after(function () {
-            del(path.resolve(process.cwd(), 'test-samples', 'project1', 'dist'));
+            return del(path.resolve(process.cwd(), 'test-samples', 'project1', 'dist'));
         });
 
         var hash = null;
