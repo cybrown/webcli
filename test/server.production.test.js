@@ -2,8 +2,8 @@ var assertResource = require('./helpers').assertResource;
 var assertIndexHtmlBody = require('./helpers').assertIndexHtmlBody;
 var assertBundleJsBodyMinified = require('./helpers').assertBundleJsBodyMinified;
 var assertStyleCssBodyMinified = require('./helpers').assertStyleCssBodyMinified;
-var startWebpackServer = require('./helpers').startWebpackServer;
-var stopWebpackServer = require('./helpers').stopWebpackServer;
+var startServer = require('./helpers').startServer;
+var stopServer = require('./helpers').stopServer;
 
 
 describe ('server with production files', function () {
@@ -16,9 +16,9 @@ describe ('server with production files', function () {
 
     describe ('tests on project1', function () {
 
-        before(startWebpackServer('project1', ['-e', 'prod']));
+        before(startServer('project1', ['-e', 'prod']));
 
-        after(stopWebpackServer);
+        after(stopServer);
 
         var hash = null;
 

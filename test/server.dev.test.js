@@ -2,8 +2,8 @@ var assertResource = require('./helpers').assertResource;
 var assertIndexHtmlBody = require('./helpers').assertIndexHtmlBody;
 var assertBundleJsBody = require('./helpers').assertBundleJsBody;
 var assertStyleCssBody = require('./helpers').assertStyleCssBody;
-var startWebpackServer = require('./helpers').startWebpackServer;
-var stopWebpackServer = require('./helpers').stopWebpackServer;
+var startServer = require('./helpers').startServer;
+var stopServer = require('./helpers').stopServer;
 
 
 describe ('server with dev files', function () {
@@ -16,9 +16,9 @@ describe ('server with dev files', function () {
 
     describe ('tests on project1', function () {
 
-        before(startWebpackServer('project1'));
+        before(startServer('project1'));
 
-        after(stopWebpackServer);
+        after(stopServer);
 
         var hash = null;
 

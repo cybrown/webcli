@@ -3,6 +3,7 @@ var request = require('request');
 var spawn = require('child_process').spawn;
 var Promise = require('es6-promise-polyfill').Promise;
 var path = require('path');
+var fs = require('fs');
 
 function assertResource(path, statusCode) {
     return new Promise(function (resolve, reject) {
@@ -42,7 +43,7 @@ function assertStyleCssBodyMinified(body) {
 
 var childWebpackServerProcess = null;
 
-function startWebpackServer(projectName, args) {
+function startServer(projectName, args) {
     args = args || [];
     var packageJson = require(path.resolve(process.cwd(), 'package.json'));
     var originalCwd = process.cwd();
@@ -63,7 +64,7 @@ function startWebpackServer(projectName, args) {
     }
 }
 
-function stopWebpackServer() {
+function stopServer() {
     return new Promise(function (resolve, reject) {
         if (childWebpackServerProcess) {
             childWebpackServerProcess.kill();
@@ -74,11 +75,51 @@ function stopWebpackServer() {
     });
 }
 
+function runBuild(projectName, args) {
+    args = args || [];
+    var packageJson = require(path.resolve(process.cwd(), 'package.json'));
+    var originalCwd = process.cwd();
+    var binPath = path.resolve(originalCwd, packageJson.bin);
+    return function () {
+        return new Promise(function (resolve, reject) {
+            process.chdir('test-samples/' + projectName);
+            var childProcess = spawn('node', [binPath, 'build'].concat(args));
+            childProcess.on('exit', function () {
+                resolve();
+            });
+            childProcess.on('error', function (err) {
+                reject(err);
+            });
+        });
+    };
+}
+
+function assertFile(filePath) {
+    return new Promise(function (resolve, reject) {
+        fs.readFile(filePath, function (err, data) {
+            if (err) return reject(err);
+            resolve(data.toString('utf-8'));
+        });
+    });
+}
+
+function assertFileNonExistant(filePath) {
+    return new Promise(function (resolve, reject) {
+        fs.exists(filePath, function (result) {
+            expect(result).to.equal(false);
+            resolve();
+        });
+    });
+}
+
 module.exports = {
     assertResource: assertResource,
     assertIndexHtmlBody: assertIndexHtmlBody,
     assertBundleJsBody: assertBundleJsBody,
     assertStyleCssBody: assertStyleCssBody,
-    startWebpackServer: startWebpackServer,
-    stopWebpackServer: stopWebpackServer
+    startServer: startServer,
+    stopServer: stopServer,
+    runBuild: runBuild,
+    assertFile: assertFile,
+    assertFileNonExistant: assertFileNonExistant
 };
