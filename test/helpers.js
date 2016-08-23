@@ -22,7 +22,7 @@ function assertIndexHtmlBody(body) {
 }
 
 function assertBundleJsBody(body) {
-    expect(body).match(/console\.log\('ok'\)/);
+    expect(body).match(/console\.log\(Math\.pow\(3, 4\)\)/);
     expect(body).match(/\/\/# sourceMappingURL=bundle\.[a-f0-9]{20}\.js\.map/);
 }
 
@@ -33,7 +33,7 @@ function assertStyleCssBody(body) {
 }
 
 function assertBundleJsBodyMinified(body) {
-    expect(body).match(/console\.log\("ok"\)/);
+    expect(body).match(/console\.log\(Math\.pow\(3,4\)\)/);
 }
 
 function assertStyleCssBodyMinified(body) {

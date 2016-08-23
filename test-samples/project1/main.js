@@ -1,2 +1,2 @@
 import './style.less';
-console.log('ok');
+console.log(3 ** 4);
