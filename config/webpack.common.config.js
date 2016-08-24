@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var _ = require('lodash');
 
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -12,7 +13,14 @@ if (fs.existsSync(process.cwd() + '/index.html')) {
     webpackHtmlOptions.template = process.cwd() + '/index.html';
 }
 
-const mainScriptFile = ['main.ts', 'main.tsx', 'main.js', 'main.jsx'].map(function (fileName) {
+var indexFileNames = ['index', 'main'];
+var extensions = ['ts', 'tsx', 'js', 'jsx'];
+
+const mainScriptFile = _.flatMap(indexFileNames, function(name) {
+    return extensions.map(function (extension) {
+        return name + '.' + extension;
+    });
+}).map(function (fileName) {
     return path.resolve(process.cwd(), fileName);
 }).filter(function (filePath) {
     return fs.existsSync(filePath);
@@ -28,7 +36,7 @@ module.exports = {
         filename: 'bundle.[hash].js'
     },
     resolve: {
-        extensions: ['', '.js', '.jsx', '.ts', '.tsx']
+        extensions: [''].concat(extensions)
     },
     module: {
         loaders: [

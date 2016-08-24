@@ -4,7 +4,7 @@ var assertBundleJsBody = require('./helpers').assertBundleJsBody;
 var assertStyleCssBody = require('./helpers').assertStyleCssBody;
 var startServer = require('./helpers').startServer;
 var stopServer = require('./helpers').stopServer;
-
+var expect = require('chai').expect;
 
 describe ('server with dev files', function () {
 
@@ -47,6 +47,30 @@ describe ('server with dev files', function () {
 
         it ('should serve style.css.map', function () {
             return assertResource('/style.' + hash + '.css.map');
+        });
+    });
+
+    describe ('tests on project2', function () {
+
+        before(startServer('project2'));
+
+        after(stopServer);
+
+        var hash = null;
+
+        it ('should serve index.html', function () {
+            return assertResource('/')
+                .then(function (body) {
+                    expect(body).match(/^<!DOCTYPE html>/);
+                    hash = body.match(/bundle\.([a-f0-9]{20})\.js/)[1];
+                });
+        });
+
+        it ('should serve bundle.js', function () {
+            return assertResource('/bundle.' + hash + '.js')
+                .then(body => {
+                    expect(body).match(/console\.log\('index'\)/);
+                });
         });
     });
 });
