@@ -14,11 +14,11 @@ if (fs.existsSync(process.cwd() + '/index.html')) {
 }
 
 var indexFileNames = ['index', 'main'];
-var extensions = ['ts', 'tsx', 'js', 'jsx'];
+var extensions = ['.ts', '.tsx', '.js', '.jsx'];
 
 const mainScriptFile = _.flatMap(indexFileNames, function(name) {
     return extensions.map(function (extension) {
-        return name + '.' + extension;
+        return name + extension;
     });
 }).map(function (fileName) {
     return path.resolve(process.cwd(), fileName);
